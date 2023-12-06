@@ -1,11 +1,9 @@
-import React from 'react';
-import WeatherApp from './WeatherApp';
-//import 'antd/dist/antd.css';
+import './App.css'
 
 const App = () => {
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <WeatherApp />
+    <div>
+      <h1>My app</h1>
     </div>
   );
 };
