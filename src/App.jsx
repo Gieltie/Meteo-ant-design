@@ -25,7 +25,9 @@ const App = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
+  console.log(user)
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app)
   const provider = new GoogleAuthProvider()
@@ -34,6 +36,7 @@ const App = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsLoggedIn(true);
+        setUser(user);
       } else {
         setIsLoggedIn(false);
       }
@@ -89,7 +92,7 @@ const App = () => {
   return (
     <>
       {isLoggedIn ? (
-        <Home handleSignOut={handleSignOut}/>
+        <Home handleSignOut={handleSignOut} user={user} />
       ) : (
         <LoginPage 
         handleSignInWithGoogle={handleSignInWithGoogle} 
