@@ -5,7 +5,8 @@ import { getAuth,
         signInWithEmailAndPassword,
         signOut,
         onAuthStateChanged,
-        GoogleAuthProvider } from "firebase/auth";
+        GoogleAuthProvider,
+        updateProfile } from "firebase/auth";
 import './App.css'
 import { initializeApp } from "firebase/app";
 import Home from "./components/Home";
@@ -26,6 +27,8 @@ const App = () => {
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [updatedName, setUpdatedName] = useState('');
+  const [updatedPhoto, setUpdatedPhoto] = useState('');
 
   console.log(user)
   const app = initializeApp(firebaseConfig);
@@ -55,6 +58,11 @@ const App = () => {
   }
   
   const handleSignIn = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Veuillez entrer une adresse e-mail valide');
+      return;
+    }
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -65,6 +73,23 @@ const App = () => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(`Error: ${errorCode} ${errorMessage}`);
+    }
+  }
+
+  const authUpdateProfile = async () => {
+    try {
+      await updateProfile(auth.currentUser, {
+        displayName: updatedName, 
+        photoURL: updatedPhoto
+      });
+      console.log('Profile updated');
+      setUser({
+        ...user,
+        displayName: updatedName,
+        photoURL: updatedPhoto
+      });
+    } catch (error) {
+      console.log('Error updating profile: ', error);
     }
   }
 
@@ -92,7 +117,14 @@ const App = () => {
   return (
     <>
       {isLoggedIn ? (
-        <Home handleSignOut={handleSignOut} user={user} />
+        <Home 
+        handleSignOut={handleSignOut} 
+        authUpdateProfile={authUpdateProfile}
+        updatedName={updatedName}
+        setUpdatedName={setUpdatedName}
+        updatedPhoto={updatedPhoto}
+        setUpdatedPhoto={setUpdatedPhoto}
+        user={user} />
       ) : (
         <LoginPage 
         handleSignInWithGoogle={handleSignInWithGoogle} 
