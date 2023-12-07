@@ -1,66 +1,63 @@
-/* import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-
+import { useState, useEffect } from "react";
+import { getAuth, 
+        createUserWithEmailAndPassword,
+        signInWithPopup,
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged,
+        GoogleAuthProvider } from "firebase/auth";
 import './App.css'
+import { initializeApp } from "firebase/app";
+import Home from "./components/Home";
+import LoginPage from "./components/Login";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyAfjUQwdDou8iChKP2hYkvkhEwfkmctxsM",
+  authDomain: "hofman-chat.firebaseapp.com",
+  projectId: "hofman-chat",
+  storageBucket: "hofman-chat.appspot.com",
+  messagingSenderId: "761428687181",
+  appId: "1:761428687181:web:000ed4b4d895bc13391f04"
+};
+ 
+ 
 const App = () => {
-  const auth = getAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false); */
-
-  /* const viewLoggedOut = document.getElementById("logged-out-view")
-  const viewLoggedIn = document.getElementById("logged-in-view") */
-
-  /* showLoggedOutView()
-
-  
-  */
- 
- import { useState } from "react";
- import { FcGoogle } from "react-icons/fc";
- import { LuLogOut } from "react-icons/lu";
- import { getAuth, 
-          createUserWithEmailAndPassword,
-          signInWithEmailAndPassword } from "firebase/auth";
- 
- import './App.css'
- import { initializeApp } from "firebase/app";
-
- const firebaseConfig = {
-   apiKey: "AIzaSyAfjUQwdDou8iChKP2hYkvkhEwfkmctxsM",
-   authDomain: "hofman-chat.firebaseapp.com",
-   projectId: "hofman-chat",
-   storageBucket: "hofman-chat.appspot.com",
-   messagingSenderId: "761428687181",
-   appId: "1:761428687181:web:000ed4b4d895bc13391f04"
- };
- 
- 
- const App = () => {
-   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app)
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app)
+  const provider = new GoogleAuthProvider()
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [auth]);
   
   const handleSignInWithGoogle = () => {
-    console.log('Sign in with Google');
+    signInWithPopup(auth, provider)
+    .then((result) => {
+      console.log('Signed in with Google');
+    }).catch((error) => {
+      console.log(error.message) ;
+    });
   }
-
-  /* const handleSignIn = () => {
-    console.log(`Email: ${email}, Password: ${password}`);
-    setIsLoggedIn(true);
-  } */
+  
   const handleSignIn = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // Signed in 
       const user = userCredential.user;
       console.log(`Signed in as ${user.email}`);
-      setIsLoggedIn(true);
+      setEmail('');
+      setPassword('');
     } catch (error) {
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -71,7 +68,8 @@ const App = () => {
   const newAccount = () => {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      setIsLoggedIn(true);
+      setEmail('');
+      setPassword('');
     })
     .catch((error) => {
       console.log(error.message)
@@ -79,33 +77,29 @@ const App = () => {
     console.log('Create account');
   }
 
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      console.log('User signed out');
+    } catch (error) {
+      console.log('Error signing out: ', error);
+    }
+  };
+
   return (
     <>
       {isLoggedIn ? (
-        <div className="container">
-          <nav>
-            <LuLogOut onClick={() => setIsLoggedIn(false)}/>
-          </nav>
-          <h1>Welcome, you are logged in!</h1>
-        </div>
+        <Home handleSignOut={handleSignOut}/>
       ) : (
-        <div className="container">
-          <h1 className="app-title">Hofman Chat</h1>
-          
-          <div className="provider-buttons">
-            <button id="sign-in-with-google-btn" className="provider-btn" onClick={handleSignInWithGoogle}>
-              <FcGoogle className="google-btn-logo"/>
-              Sign in with Google
-            </button>
-          </div>
-          
-          <div className="auth-fields-and-buttons">
-            <input id="email-input" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}/>
-            <input id="password-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}/>
-            <button id="sign-in-btn" className="primary-btn" onClick={handleSignIn}>Sign in</button>
-            <button id="create-account-btn" className="secondary-btn" onClick={newAccount}>Create account</button>
-          </div>
-        </div>
+        <LoginPage 
+        handleSignInWithGoogle={handleSignInWithGoogle} 
+        handleSignIn={handleSignIn} 
+        newAccount={newAccount} 
+        email={email} 
+        setEmail={setEmail} 
+        password={password} 
+        setPassword={setPassword} 
+      />
       )}
     </>
   );
