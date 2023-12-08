@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { initializeApp } from "firebase/app";
 import { getAuth, 
         createUserWithEmailAndPassword,
         signInWithPopup,
@@ -6,11 +7,12 @@ import { getAuth,
         signOut,
         onAuthStateChanged,
         GoogleAuthProvider,
-        updateProfile } from "firebase/auth";
-import './App.css'
-import { initializeApp } from "firebase/app";
+        /* updateProfile */ } from "firebase/auth";
+/* import { getFirestore } from "firebase/firestore" */
 import Home from "./components/Home";
 import LoginPage from "./components/Login";
+import './App.css'
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAfjUQwdDou8iChKP2hYkvkhEwfkmctxsM",
@@ -21,19 +23,19 @@ const firebaseConfig = {
   appId: "1:761428687181:web:000ed4b4d895bc13391f04"
 };
  
- 
 const App = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  const [updatedName, setUpdatedName] = useState('');
-  const [updatedPhoto, setUpdatedPhoto] = useState('');
+  /* const [updatedName, setUpdatedName] = useState('');
+  const [updatedPhoto, setUpdatedPhoto] = useState(''); */
 
-  console.log(user)
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app)
   const provider = new GoogleAuthProvider()
+
+  //console.log(db)
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -76,7 +78,7 @@ const App = () => {
     }
   }
 
-  const authUpdateProfile = async () => {
+/*   const authUpdateProfile = async () => {
     try {
       await updateProfile(auth.currentUser, {
         displayName: updatedName, 
@@ -91,7 +93,7 @@ const App = () => {
     } catch (error) {
       console.log('Error updating profile: ', error);
     }
-  }
+  } */
 
   const newAccount = () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -118,23 +120,28 @@ const App = () => {
     <>
       {isLoggedIn ? (
         <Home 
-        handleSignOut={handleSignOut} 
-        authUpdateProfile={authUpdateProfile}
-        updatedName={updatedName}
-        setUpdatedName={setUpdatedName}
-        updatedPhoto={updatedPhoto}
-        setUpdatedPhoto={setUpdatedPhoto}
-        user={user} />
+          app={app}
+          handleSignOut={handleSignOut} 
+          user={user}
+          /* sendPost={sendPost}
+          postText={postText}
+          setPostText={setPostText} */
+          /* authUpdateProfile={authUpdateProfile}
+          updatedName={updatedName}
+          setUpdatedName={setUpdatedName}
+          updatedPhoto={updatedPhoto}
+          setUpdatedPhoto={setUpdatedPhoto} */
+        />
       ) : (
         <LoginPage 
-        handleSignInWithGoogle={handleSignInWithGoogle} 
-        handleSignIn={handleSignIn} 
-        newAccount={newAccount} 
-        email={email} 
-        setEmail={setEmail} 
-        password={password} 
-        setPassword={setPassword} 
-      />
+          handleSignInWithGoogle={handleSignInWithGoogle} 
+          handleSignIn={handleSignIn} 
+          newAccount={newAccount} 
+          email={email} 
+          setEmail={setEmail} 
+          password={password} 
+          setPassword={setPassword} 
+        />
       )}
     </>
   );
