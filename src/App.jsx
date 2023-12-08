@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import { getAuth, 
-        createUserWithEmailAndPassword,
-        signInWithPopup,
-        signInWithEmailAndPassword,
-        signOut,
-        onAuthStateChanged,
-        GoogleAuthProvider,
-        /* updateProfile */ } from "firebase/auth";
-/* import { getFirestore } from "firebase/firestore" */
+         signOut, 
+         onAuthStateChanged } from "firebase/auth";
 import Home from "./components/Home";
 import LoginPage from "./components/Login";
 import './App.css'
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyAfjUQwdDou8iChKP2hYkvkhEwfkmctxsM",
@@ -24,18 +17,11 @@ const firebaseConfig = {
 };
  
 const App = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  /* const [updatedName, setUpdatedName] = useState('');
-  const [updatedPhoto, setUpdatedPhoto] = useState(''); */
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app)
-  const provider = new GoogleAuthProvider()
-
-  //console.log(db)
+  const auth = getAuth(app);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -46,66 +32,8 @@ const App = () => {
         setIsLoggedIn(false);
       }
     });
-    
     return () => unsubscribe();
   }, [auth]);
-  
-  const handleSignInWithGoogle = () => {
-    signInWithPopup(auth, provider)
-    .then((result) => {
-      console.log('Signed in with Google');
-    }).catch((error) => {
-      console.log(error.message) ;
-    });
-  }
-  
-  const handleSignIn = async () => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert('Veuillez entrer une adresse e-mail valide');
-      return;
-    }
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      console.log(`Signed in as ${user.email}`);
-      setEmail('');
-      setPassword('');
-    } catch (error) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(`Error: ${errorCode} ${errorMessage}`);
-    }
-  }
-
-/*   const authUpdateProfile = async () => {
-    try {
-      await updateProfile(auth.currentUser, {
-        displayName: updatedName, 
-        photoURL: updatedPhoto
-      });
-      console.log('Profile updated');
-      setUser({
-        ...user,
-        displayName: updatedName,
-        photoURL: updatedPhoto
-      });
-    } catch (error) {
-      console.log('Error updating profile: ', error);
-    }
-  } */
-
-  const newAccount = () => {
-    createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      setEmail('');
-      setPassword('');
-    })
-    .catch((error) => {
-      console.log(error.message)
-    });
-    console.log('Create account');
-  }
 
   const handleSignOut = async () => {
     try {
@@ -123,24 +51,11 @@ const App = () => {
           app={app}
           handleSignOut={handleSignOut} 
           user={user}
-          /* sendPost={sendPost}
-          postText={postText}
-          setPostText={setPostText} */
-          /* authUpdateProfile={authUpdateProfile}
-          updatedName={updatedName}
-          setUpdatedName={setUpdatedName}
-          updatedPhoto={updatedPhoto}
-          setUpdatedPhoto={setUpdatedPhoto} */
+          setUser={setUser}
         />
       ) : (
         <LoginPage 
-          handleSignInWithGoogle={handleSignInWithGoogle} 
-          handleSignIn={handleSignIn} 
-          newAccount={newAccount} 
-          email={email} 
-          setEmail={setEmail} 
-          password={password} 
-          setPassword={setPassword} 
+          app={app}
         />
       )}
     </>

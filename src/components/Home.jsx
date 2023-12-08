@@ -1,22 +1,28 @@
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { getFirestore, 
          collection, 
          addDoc, 
          serverTimestamp,
          getDocs } from "firebase/firestore"
+/* import { getAuth, 
+         updateProfile } from "firebase/auth"; */
 import { IoClose } from "react-icons/io5";
 import emoji1 from '../assets/emojis/1.png';
 import emoji2 from '../assets/emojis/2.png';
 import emoji3 from '../assets/emojis/3.png';
 import emoji4 from '../assets/emojis/4.png';
 import emoji5 from '../assets/emojis/5.png';
-import defaultImage from '../assets/default-profile-picture.jpeg';
+import defaultImage from '../assets/default-image.jpeg';
 
-const Home = ({ app, handleSignOut, user/* authUpdateProfile, updatedName, setUpdatedName, updatedPhoto, setUpdatedPhoto */ }) => {
-  const [postText, setPostText] = useState('');
-  const db = getFirestore(app)
-  const [selectedButton, setSelectedButton] = useState(null);
+const Home = ({ app, handleSignOut, user/* , setUser */ }) => {
   const [posts, setPosts] = useState([]);
+  const [postText, setPostText] = useState('');
+  const [selectedButton, setSelectedButton] = useState(null);
+  /* const [updatedName, setUpdatedName] = useState('');
+  const [updatedPhoto, setUpdatedPhoto] = useState('');
+  const auth = getAuth(app); */
+  const db = getFirestore(app)
+  
   const moodEmojis = {
     1: emoji1,
     2: emoji2,
@@ -43,6 +49,22 @@ const Home = ({ app, handleSignOut, user/* authUpdateProfile, updatedName, setUp
       console.error("Erreur ajout document: ", error);
     }
   }
+  
+  function displayDate(firebaseDate) {
+    const date = firebaseDate.toDate()
+    const day = date.getDate()
+    const year = date.getFullYear()
+    
+    const monthNames = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Julliet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"]
+    const month = monthNames[date.getMonth()]
+    
+    let hours = date.getHours()
+    let minutes = date.getMinutes()
+    hours = hours < 10 ? "0" + hours : hours
+    minutes = minutes < 10 ? "0" + minutes : minutes
+    
+    return `${day} ${month} ${year} - ${hours}:${minutes}`
+  }
 
   const fetchPost = async () => {
     const querySnapshot = await getDocs(collection(db, "posts"));
@@ -52,36 +74,41 @@ const Home = ({ app, handleSignOut, user/* authUpdateProfile, updatedName, setUp
     });
     setPosts(postsArray);
   }
-
+  
   function Post({ post }) {
+    const inputString = post.text.split('\n').map((line, index) => (
+      <Fragment key={index}>
+        {line}
+        <br />
+      </Fragment>
+    ));
     return (
       <div className="post">
         <div className="header">
           <h3>{displayDate(post.createdAt)}</h3>
           <img src={moodEmojis[post.mood]} alt="Mood emoji" />
         </div>
-        <p>{post.text}</p>
+        <p>{inputString}</p>
       </div>
     );
   }
 
-  function displayDate(firebaseDate) {
-    const date = firebaseDate.toDate()
-    
-    const day = date.getDate()
-    const year = date.getFullYear()
-    
-    const monthNames = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Julliet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"]
-    const month = monthNames[date.getMonth()]
-
-    let hours = date.getHours()
-    let minutes = date.getMinutes()
-    hours = hours < 10 ? "0" + hours : hours
-    minutes = minutes < 10 ? "0" + minutes : minutes
-
-    return `${day} ${month} ${year} - ${hours}:${minutes}`
-}
-
+  /* const authUpdateProfile = async () => {
+    try {
+      await updateProfile(auth.currentUser, {
+        displayName: updatedName, 
+        photoURL: updatedPhoto
+      });
+      console.log('Profile updated');
+      setUser({
+        ...user,
+        displayName: updatedName,
+        photoURL: updatedPhoto
+      });
+    } catch (error) {
+      console.log('Error updating profile: ', error);
+    }
+  } */
 
   return (
     <div className="container">
@@ -91,7 +118,7 @@ const Home = ({ app, handleSignOut, user/* authUpdateProfile, updatedName, setUp
       <div className="app-container">
         <div className="user-section">
           <img src={user.photoURL || defaultImage} />
-          <h2>Salut {user.displayName || "l'ami,"} <br />Comment va-tu?</h2>
+          <h2>Salut {user.displayName + "," || "l'ami,"} Comment va-tu?</h2>
         
           <div className="mood-emojis">
             <button 
@@ -127,13 +154,15 @@ const Home = ({ app, handleSignOut, user/* authUpdateProfile, updatedName, setUp
         </div>
 
           <div className="post-section">
-            <textarea name="textarea" placeholder="Ecrit ton post..." value={postText} onChange={e => setPostText(e.target.value)}></textarea>
+            <textarea name="textarea" placeholder="Ecrit ton message..." value={postText} onChange={e => setPostText(e.target.value)}></textarea>
             <button className="primary-btn" onClick={sendPost}>Publier</button>
-            <button className="secondary-btn" onClick={fetchPost}>Les dernier posts</button>
+            <button className="secondary-btn" onClick={fetchPost}>Les derniers publications</button>
           </div>
+
           {/* <input type="text" placeholder="Nom de Profile" value={updatedName} onChange={e => setUpdatedName(e.target.value)}/>
           <input type="text" placeholder="Url de Photo de Profile" value={updatedPhoto} onChange={e => setUpdatedPhoto(e.target.value)}/>
           <button className="primary-btn" onClick={authUpdateProfile}>Mettre à jour le profil</button> */}
+          
           <div className="posts-section">
             {posts.map(post => (
               <Post key={post.id} post={post} />
