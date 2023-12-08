@@ -1,6 +1,8 @@
 import { useState, Fragment } from "react";
 import { getFirestore, 
-         collection, 
+         collection,
+         query,
+         orderBy, 
          addDoc, 
          serverTimestamp,
          getDocs } from "firebase/firestore"
@@ -45,6 +47,7 @@ const Home = ({ app, handleSignOut, user/* , setUser */ }) => {
       });
       console.log("Document publier avec ID: ", docRef.id);
       setPostText('');
+      fetchPost();
     } catch (error) {
       console.error("Erreur ajout document: ", error);
     }
@@ -67,7 +70,7 @@ const Home = ({ app, handleSignOut, user/* , setUser */ }) => {
   }
 
   const fetchPost = async () => {
-    const querySnapshot = await getDocs(collection(db, "posts"));
+    const querySnapshot = await getDocs(query(collection(db, "posts"), orderBy("createdAt", "desc")));
     const postsArray = [];
     querySnapshot.forEach((doc) => {
       postsArray.push({ id: doc.id, ...doc.data() });
