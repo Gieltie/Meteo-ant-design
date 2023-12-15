@@ -38,7 +38,7 @@ const App = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      console.log('User signed out');
+      alert('Tu es déconnecté');
     } catch (error) {
       console.log('Error signing out: ', error);
     }

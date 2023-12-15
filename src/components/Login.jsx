@@ -15,7 +15,7 @@ const LoginPage = ({ auth }) => {
   const handleSignInWithGoogle = () => {
     signInWithPopup(auth, provider)
     .then((result) => {
-      console.log('Signed in with Google');
+      alert('Connecter avec Google');
     }).catch((error) => {
       console.log(error.message) ;
     });
@@ -24,19 +24,19 @@ const LoginPage = ({ auth }) => {
   const handleSignIn = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      alert('Veuillez entrer une adresse e-mail valide');
+      alert('Entrez une adresse e-mail valide');
       return;
     }
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      console.log(`Signed in as ${user.email}`);
+      alert(`Connecté en tant que ${user.email}`);
       setEmail('');
       setPassword('');
     } catch (error) {
       const errorCode = error.code;
       const errorMessage = error.message;
-      console.log(`Error: ${errorCode} ${errorMessage}`);
+      console.log(`Erreur: ${errorCode} ${errorMessage}`);
     }
   }
   
@@ -48,9 +48,9 @@ const LoginPage = ({ auth }) => {
     })
     .catch((error) => {
       console.log(error.message)
-      alert('Veuillez entrer une adresse e-mail valide et un mot de passe de 6 caractères minimum');
+      alert('Entrez une adresse e-mail valide avec un mot de passe de 6 caractères minimum');
     });
-    console.log('Compte créé');
+    alert('Compte créé');
   }
 
   return (
@@ -65,7 +65,6 @@ const LoginPage = ({ auth }) => {
       </div>
       
       <div className="auth-fields-and-buttons">
-        {/* <input type="text" placeholder="Ton Nom" value={displayName} onChange={e => setDisplayName(e.target.value)}/> */}
         <input type="email" name="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)}/>
         <input type="password" name="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)}/>
         <button className="primary-btn" onClick={handleSignIn}>Connecter</button>

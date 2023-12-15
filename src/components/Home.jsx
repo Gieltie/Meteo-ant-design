@@ -20,6 +20,7 @@ import emoji3 from '../assets/emojis/3.png';
 import emoji4 from '../assets/emojis/4.png';
 import emoji5 from '../assets/emojis/5.png';
 import defaultImage from '../assets/default-image.jpeg';
+import notificationSound from '../assets/new-positive-notice-161930.mp3';
 
 const Home = ({ app, handleSignOut, user, setUser }) => {
   const [posts, setPosts] = useState([]);
@@ -38,6 +39,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
     4: emoji4,
     5: emoji5
   };
+  const audio = new Audio(notificationSound);
 
   const sendPost = async () => {
     if (!selectedButton) {
@@ -53,6 +55,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
         displayName: user.displayName,
       });
       console.log("Document publier avec ID: ", docRef.id);
+      alert ("Message envoyé");
       setPostText('');
     } catch (error) {
       console.error("Erreur ajout document: ", error);
@@ -88,8 +91,8 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
         postsArray.push({ id: doc.id, ...doc.data() });
       });
       setPosts(postsArray);
+      audio.play();
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -102,7 +105,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
         updatedAt: serverTimestamp(),
       });
     } else {
-      alert("Vous ne pouvez modifier que vos propres messages.");
+      alert("Tu ne peux modifier que tes propres messages.");
     }
   };
 
@@ -122,7 +125,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
       if (postSnap.data().uid === user.uid) {
         await deleteDoc(postRef);
       } else {
-        alert("Vous ne pouvez supprimer que vos propres messages.");
+        alert("Tu ne peux supprimer que tes propres messages.");
       }
     }
   };
@@ -161,7 +164,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
         photoURL: updatedPhoto || user.photoURL
       };
       await updateProfile(auth.currentUser, newProfile);
-      console.log('Profile updated');
+      alert('Profile mis à jour');
       setUser({
         ...user,
         ...newProfile
@@ -174,6 +177,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
   return (
     <div className="container">
       <div className="app-container">
+
         <div className={`user-section ${showInputs ? 'grow' : ''}`}>
           <div className="user-section-btn">
             <FiEdit onClick={() => setShowInputs(!showInputs)}/>
@@ -181,7 +185,6 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
           </div>
           <img src={user.photoURL || defaultImage} />
           <h2>Salut {(user.displayName || "l'ami") + ","} Comment va-tu?</h2>
-
           {showInputs && (
             <>
               <input type="text" placeholder="Nom de Profile" value={updatedName} onChange={e => setUpdatedName(e.target.value)}/>
@@ -190,8 +193,10 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
             </>
           )}
         </div>
-        
+
         <div className="post-section">
+          <h2 className="post-title">Bienvenue dans mon chat app.</h2>
+          <h3 className="post-subtitle">Publier quelque chose...</h3>
           <div className="mood-emojis">
             <button 
               className={`mood-emoji-btn ${selectedButton === 1 ? 'selected-emoji' : 'unselected-emoji'}`} 
@@ -227,13 +232,12 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
           <textarea name="textarea" placeholder="Ecrit ton message..." value={postText} onChange={e => setPostText(e.target.value)}></textarea>
           <button className="primary-btn" onClick={sendPost}>Publier</button>
         </div>
-
-          
-          <div className="posts-section">
-            {posts.map(post => (
-              <Post key={post.id} post={post} />
-            ))}
-          </div>
+        
+        <div className="posts-section">
+          {posts.map(post => (
+            <Post key={post.id} post={post} />
+          ))}
+        </div>
         
       </div>
     </div>

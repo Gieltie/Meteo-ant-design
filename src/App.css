@@ -169,6 +169,10 @@ h2, h3 {
   width: 100%;
 }
 
+.post-title, .post-subtitle {
+  text-align: center;
+}
+
 .post {
     display: flex;
     flex-direction: column;
