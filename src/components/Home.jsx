@@ -154,9 +154,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
     );
   }
 
-
-  /* Function for the update user profile */
-  const authUpdateProfile = async () => {
+ /*  const authUpdateProfile = async () => {
     try {
       await updateProfile(auth.currentUser, {
         displayName: updatedName, 
@@ -167,6 +165,23 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
         ...user,
         displayName: updatedName,
         photoURL: updatedPhoto
+      });
+    } catch (error) {
+      console.log('Error updating profile: ', error);
+    }
+  } */
+
+  const authUpdateProfile = async () => {
+    try {
+      const newProfile = {
+        displayName: updatedName,
+        photoURL: updatedPhoto || user.photoURL // Use the old photo URL if updatedPhoto is empty
+      };
+      await updateProfile(auth.currentUser, newProfile);
+      console.log('Profile updated');
+      setUser({
+        ...user,
+        ...newProfile
       });
     } catch (error) {
       console.log('Error updating profile: ', error);
