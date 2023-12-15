@@ -12,7 +12,8 @@ import { getFirestore,
          deleteDoc } from "firebase/firestore"
 import { getAuth, 
          updateProfile } from "firebase/auth";
-import { IoClose } from "react-icons/io5";
+
+import { FiX, FiEdit } from "react-icons/fi";
 import emoji1 from '../assets/emojis/1.png';
 import emoji2 from '../assets/emojis/2.png';
 import emoji3 from '../assets/emojis/3.png';
@@ -25,7 +26,9 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
   const [postText, setPostText] = useState('');
   const [selectedButton, setSelectedButton] = useState(null);
   const [updatedName, setUpdatedName] = useState('');
-  /* const [updatedPhoto, setUpdatedPhoto] = useState(''); */
+  const [updatedPhoto, setUpdatedPhoto] = useState('');
+  const [showInputs, setShowInputs] = useState(false);
+
   const auth = getAuth(app);
   const db = getFirestore(app)
   const moodEmojis = {
@@ -112,12 +115,15 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
   };
 
   const deletePost = async (postId) => {
-    const postRef = doc(db, "posts", postId);
-    const postSnap = await getDoc(postRef);
-    if (postSnap.data().uid === user.uid) {
-      await deleteDoc(postRef);
-    } else {
-      alert("Vous ne pouvez supprimer que vos propres messages.");
+    const confirmation = window.confirm("Tu es sur de vouloir supprimer ce message?");
+    if (confirmation) {
+      const postRef = doc(db, "posts", postId);
+      const postSnap = await getDoc(postRef);
+      if (postSnap.data().uid === user.uid) {
+        await deleteDoc(postRef);
+      } else {
+        alert("Vous ne pouvez supprimer que vos propres messages.");
+      }
     }
   };
 
@@ -137,8 +143,12 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
         <h2>{post.displayName}</h2>
         <p>{inputString}</p>
           <div className="crud-btns">
-            <button className="edit-btn" onClick={() => editPost(post.id, post.text)}>Modifier</button>
-            <button className="delete-btn" onClick={() => deletePost(post.id)}>Supprimer</button>
+          {post.uid === user.uid && (
+            <>
+              <button className="edit-btn" onClick={() => editPost(post.id, post.text)}>Modifier</button>
+              <button className="delete-btn" onClick={() => deletePost(post.id)}>Supprimer</button>
+            </>
+          )}
           </div>
       </div>
     );
@@ -150,13 +160,13 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
     try {
       await updateProfile(auth.currentUser, {
         displayName: updatedName, 
-        /* photoURL: updatedPhoto */
+        photoURL: updatedPhoto
       });
       console.log('Profile updated');
       setUser({
         ...user,
         displayName: updatedName,
-        /* photoURL: updatedPhoto */
+        photoURL: updatedPhoto
       });
     } catch (error) {
       console.log('Error updating profile: ', error);
@@ -165,18 +175,25 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
 
   return (
     <div className="container">
-      <nav>
-        <IoClose onClick={handleSignOut}/>
-      </nav>
       <div className="app-container">
-        <div className="user-section">
+        <div className={`user-section ${showInputs ? 'grow' : ''}`}>
+          <div className="user-section-btn">
+            <FiEdit onClick={() => setShowInputs(!showInputs)}/>
+            <FiX onClick={handleSignOut}/>
+          </div>
           <img src={user.photoURL || defaultImage} />
-          <h2>Salut {user.displayName + "," || "l'ami,"} Comment va-tu?</h2>
-          
-          <input type="text" placeholder="Nom de Profile" value={updatedName} onChange={e => setUpdatedName(e.target.value)}/>
-          {/* <input type="text" placeholder="Url de Photo de Profile" value={updatedPhoto} onChange={e => setUpdatedPhoto(e.target.value)}/> */}
-          <button className="primary-btn" onClick={authUpdateProfile}>Mettre à jour le profil</button>
+          <h2>Salut {(user.displayName || "l'ami") + ","} Comment va-tu?</h2>
+
+          {showInputs && (
+            <>
+              <input type="text" placeholder="Nom de Profile" value={updatedName} onChange={e => setUpdatedName(e.target.value)}/>
+              <input type="text" placeholder="Url de Photo de Profile" value={updatedPhoto} onChange={e => setUpdatedPhoto(e.target.value)}/>
+              <button className="primary-btn" onClick={authUpdateProfile}>Mettre à jour le profil</button>
+            </>
+          )}
+        </div>
         
+        <div className="post-section">
           <div className="mood-emojis">
             <button 
               className={`mood-emoji-btn ${selectedButton === 1 ? 'selected-emoji' : 'unselected-emoji'}`} 
@@ -208,12 +225,10 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
             >
               <img src={emoji5} />
             </button>
-        </div>
-
-          <div className="post-section">
-            <textarea name="textarea" placeholder="Ecrit ton message..." value={postText} onChange={e => setPostText(e.target.value)}></textarea>
-            <button className="primary-btn" onClick={sendPost}>Publier</button>
           </div>
+          <textarea name="textarea" placeholder="Ecrit ton message..." value={postText} onChange={e => setPostText(e.target.value)}></textarea>
+          <button className="primary-btn" onClick={sendPost}>Publier</button>
+        </div>
 
           
           <div className="posts-section">
@@ -221,7 +236,7 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
               <Post key={post.id} post={post} />
             ))}
           </div>
-        </div>
+        
       </div>
     </div>
   );
