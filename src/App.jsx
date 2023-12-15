@@ -55,7 +55,7 @@ const App = () => {
         />
       ) : (
         <LoginPage 
-          app={app}
+          auth={auth}
         />
       )}
     </>

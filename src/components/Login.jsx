@@ -1,21 +1,19 @@
 import { useState } from 'react';
-import { getAuth,
-         GoogleAuthProvider,
-         signInWithPopup, 
+import { GoogleAuthProvider,
+         signInWithRedirect, 
          signInWithEmailAndPassword, 
          createUserWithEmailAndPassword } from 'firebase/auth';
 import { FcGoogle } from 'react-icons/fc';
 
 
-const LoginPage = ({ app }) => {
+const LoginPage = ({ auth }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
   
   const handleSignInWithGoogle = () => {
-    signInWithPopup(auth, provider)
+    signInWithRedirect(auth, provider)
     .then((result) => {
       console.log('Signed in with Google');
     }).catch((error) => {

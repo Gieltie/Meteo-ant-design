@@ -305,3 +305,27 @@ button:hover {
   transition: all 0.2s ease;
   box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, .25);
 }
+
+.crud-btns {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.edit-btn, .delete-btn {
+  padding: 0.2em;
+}
+
+.edit-btn {
+  background-color: var(--post-color);
+}
+
+.delete-btn {
+  background-color: var(--delete-color);
+}
+
+.edit-btn:hover, .delete-btn:hover {
+  color: var(--light-color);
+  background-color: var(--dark-color);
+}
