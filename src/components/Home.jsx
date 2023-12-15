@@ -154,28 +154,11 @@ const Home = ({ app, handleSignOut, user, setUser }) => {
     );
   }
 
- /*  const authUpdateProfile = async () => {
-    try {
-      await updateProfile(auth.currentUser, {
-        displayName: updatedName, 
-        photoURL: updatedPhoto
-      });
-      console.log('Profile updated');
-      setUser({
-        ...user,
-        displayName: updatedName,
-        photoURL: updatedPhoto
-      });
-    } catch (error) {
-      console.log('Error updating profile: ', error);
-    }
-  } */
-
   const authUpdateProfile = async () => {
     try {
       const newProfile = {
         displayName: updatedName,
-        photoURL: updatedPhoto || user.photoURL // Use the old photo URL if updatedPhoto is empty
+        photoURL: updatedPhoto || user.photoURL
       };
       await updateProfile(auth.currentUser, newProfile);
       console.log('Profile updated');

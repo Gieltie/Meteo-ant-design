@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { GoogleAuthProvider,
-         signInWithRedirect, 
+         signInWithPopup, 
          signInWithEmailAndPassword, 
          createUserWithEmailAndPassword } from 'firebase/auth';
 import { FcGoogle } from 'react-icons/fc';
@@ -13,7 +13,7 @@ const LoginPage = ({ auth }) => {
   const provider = new GoogleAuthProvider();
   
   const handleSignInWithGoogle = () => {
-    signInWithRedirect(auth, provider)
+    signInWithPopup(auth, provider)
     .then((result) => {
       console.log('Signed in with Google');
     }).catch((error) => {
